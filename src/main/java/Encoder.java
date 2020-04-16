@@ -1,45 +1,37 @@
 import java.util.*;
 
-public class Main {
-    public static Map<String, String> binToStrMap = new HashMap<>();
-    public static Map<String, String> strToBinMap = new HashMap<>();
-    public static int deg = 0;
-    public static int len = 0;
+public class Encoder {
 
-    public static void main(String[] args) {
-        String[] strs = args[0].split(",");
+    public Map<String, String> binToStrMap = new HashMap<>();
+    public Map<String, String> strToBinMap = new HashMap<>();
+    public int deg = 0;
+    // 一个key的长度
+    public int len = 0;
+    // key
+    public String keys;
+
+    public void setKeys(String keys) {
+        this.keys = keys;
+        String[] strs = keys.split(",");
         // 获取 01 串长度
         deg = deg(strs.length);
         len = strs[0].length();
         List<String> binStrs = gainBinaryKeys(deg);
         gainMaps(strs, binStrs);
-        System.out.println(binToStrMap);
-        System.out.println(strToBinMap);
-        String s = "你好中国";
-        List<String> encodedWords = new ArrayList<>();
-        for (int i = 0; i < s.length(); ++i) {
-            encodedWords.add(encodeCharacter(s.charAt(i)));
-        }
-        for (String word : encodedWords) {
-            System.out.println(decodeCharacter(word));
-
-        }
     }
 
     // 加密
-    public static String encodeCharacter(char c) {
+    public String encodeCharacter(char c) {
         StringBuilder encodedWords = new StringBuilder();
-        System.out.println(c);
         List<String> separatedBins = stringSpilt(toUnicode(c), deg);
         for (String binKey : separatedBins) {
             encodedWords.append(binToStrMap.get(binKey));
         }
-        System.out.println(encodedWords);
         return encodedWords.toString();
     }
 
     // 解密
-    public static char decodeCharacter(String encodedBin) {
+    public char decodeCharacter(String encodedBin) {
         StringBuilder bins = new StringBuilder();
         List<String> separatedWords = splitEncodedBin(encodedBin);
         for (String word : separatedWords) {
@@ -49,13 +41,32 @@ public class Main {
         return (char) parseInt;
     }
 
+    // 加密段落
+    public String encodeParagraph(String paragraph) {
+        StringBuilder encode = new StringBuilder();
+        for (int i = 0; i < paragraph.length(); ++i) {
+            encode.append(encodeCharacter(paragraph.charAt(i)));
+        }
+        return encode.toString();
+    }
+
+    // 解密段落
+    public String decodeParagraph(String paragraph) {
+        List<String> words = stringSpilt(paragraph, 16 / (deg/len));
+        StringBuilder decode = new StringBuilder();
+        for (String word : words) {
+            decode.append(decodeCharacter(word));
+        }
+        return decode.toString();
+    }
+
     // 分割加密后的串
-    public static List<String> splitEncodedBin(String encodedBin) {
+    public List<String> splitEncodedBin(String encodedBin) {
         return stringSpilt(encodedBin, len);
     }
 
     // 生成 bin to str 和 to bin 的map
-    public static void gainMaps(String[] strs, List<String> binStrs) {
+    public void gainMaps(String[] strs, List<String> binStrs) {
         for (int i = 0; i < strs.length; ++i) {
             binToStrMap.put(binStrs.get(i), strs[i]);
             strToBinMap.put(strs[i], binStrs.get(i));
