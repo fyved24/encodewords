@@ -7,6 +7,8 @@ public class Encoder {
     public int deg = 0;
     // 一个key的长度
     public int len = 0;
+    // 用于分割加密后字符串的长度
+    public int splitLen = 0;
     // key
     public String keys;
 
@@ -23,21 +25,33 @@ public class Encoder {
     // 加密
     public String encodeCharacter(char c) {
         StringBuilder encodedWords = new StringBuilder();
-        List<String> separatedBins = stringSpilt(toUnicode(c), deg);
+        String unicode = toUnicode(c);
+        // 在01串有剩余时，在前面补0，使得可以被16整除
+        if (unicode.length() % deg != 0) {
+            StringBuilder builder = new StringBuilder();
+            for (int i = 0; i < deg - (16 % deg); ++i) {
+                builder.append('0');
+            }
+            unicode = builder.toString() +  unicode;
+        }
+        List<String> separatedBins = stringSpilt(unicode, deg);
         for (String binKey : separatedBins) {
             encodedWords.append(binToStrMap.get(binKey));
         }
+        splitLen = encodedWords.toString().length();
         return encodedWords.toString();
     }
 
     // 解密
     public char decodeCharacter(String encodedBin) {
+        // 富强自由法治平等自由富强
         StringBuilder bins = new StringBuilder();
         List<String> separatedWords = splitEncodedBin(encodedBin);
         for (String word : separatedWords) {
             bins.append(strToBinMap.get(word));
         }
-        int parseInt = Integer.parseInt(bins.toString(), 2);
+        String t = bins.toString().substring(deg - (16 % deg));
+        int parseInt = Integer.parseInt(t, 2);
         return (char) parseInt;
     }
 
@@ -52,7 +66,7 @@ public class Encoder {
 
     // 解密段落
     public String decodeParagraph(String paragraph) {
-        List<String> words = stringSpilt(paragraph, 16 / (deg/len));
+        List<String> words = stringSpilt(paragraph, splitLen);
         StringBuilder decode = new StringBuilder();
         for (String word : words) {
             decode.append(decodeCharacter(word));
@@ -60,7 +74,11 @@ public class Encoder {
         return decode.toString();
     }
 
-    // 分割加密后的串
+    /**
+     * 将所给的解密后的串分割
+     * @param encodedBin 如 富强民主文明和谐自由平等公正法治
+     * @return  [富强,民主,文明,和谐,自由,平等,公正,法治]
+     */
     public List<String> splitEncodedBin(String encodedBin) {
         return stringSpilt(encodedBin, len);
     }
@@ -78,7 +96,6 @@ public class Encoder {
 
         // 能表示的01串最大数量
         int max = (int) (Math.pow(2, deg));
-
         List<String> keys = new ArrayList<>();
         for (int i = 0; i < max; ++i) {
             String s = toUnicode(i);
