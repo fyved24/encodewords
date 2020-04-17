@@ -1,9 +1,10 @@
 package cn.ironz.aowu.service;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
-
+@Slf4j
 @Service
 public class Encoder {
     public Map<String, String> binToStrMap = new HashMap<>();
@@ -24,6 +25,8 @@ public class Encoder {
         len = strs[0].length();
         List<String> binStrs = gainBinaryKeys(deg);
         gainMaps(strs, binStrs);
+        log.info("生成的01转关键字映射表{}", binToStrMap);
+        log.info("生成的关键字转01映射表{}", strToBinMap);
         splitLen = encodeCharacter('0').length();
     }
 
