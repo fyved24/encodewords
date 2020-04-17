@@ -1,5 +1,10 @@
+package cn.ironz.aowu.service;
+
+import org.springframework.stereotype.Service;
+
 import java.util.*;
 
+@Service
 public class Encoder {
 
     public Map<String, String> binToStrMap = new HashMap<>();
