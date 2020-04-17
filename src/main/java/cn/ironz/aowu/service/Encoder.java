@@ -6,7 +6,6 @@ import java.util.*;
 
 @Service
 public class Encoder {
-
     public Map<String, String> binToStrMap = new HashMap<>();
     public Map<String, String> strToBinMap = new HashMap<>();
     public int deg = 0;
@@ -25,6 +24,7 @@ public class Encoder {
         len = strs[0].length();
         List<String> binStrs = gainBinaryKeys(deg);
         gainMaps(strs, binStrs);
+        splitLen = encodeCharacter('0').length();
     }
 
     // 加密
@@ -37,25 +37,26 @@ public class Encoder {
             for (int i = 0; i < deg - (16 % deg); ++i) {
                 builder.append('0');
             }
-            unicode = builder.toString() +  unicode;
+            unicode = builder.toString() + unicode;
         }
         List<String> separatedBins = stringSpilt(unicode, deg);
         for (String binKey : separatedBins) {
             encodedWords.append(binToStrMap.get(binKey));
         }
-        splitLen = encodedWords.toString().length();
         return encodedWords.toString();
     }
 
     // 解密
     public char decodeCharacter(String encodedBin) {
-        // 富强自由法治平等自由富强
         StringBuilder bins = new StringBuilder();
         List<String> separatedWords = splitEncodedBin(encodedBin);
         for (String word : separatedWords) {
             bins.append(strToBinMap.get(word));
         }
-        String t = bins.toString().substring(deg - (16 % deg));
+        String t = bins.toString();
+        if (16 % deg != 0) {
+            t = bins.toString().substring(deg - (16 % deg));
+        }
         int parseInt = Integer.parseInt(t, 2);
         return (char) parseInt;
     }
@@ -73,16 +74,19 @@ public class Encoder {
     public String decodeParagraph(String paragraph) {
         List<String> words = stringSpilt(paragraph, splitLen);
         StringBuilder decode = new StringBuilder();
+        // 呜嗷嗷嗷嗷嗷呜嗷呜呜嗷嗷呜呜呜呜
         for (String word : words) {
-            decode.append(decodeCharacter(word));
+            char s = decodeCharacter(word);
+            decode.append(s);
         }
         return decode.toString();
     }
 
     /**
      * 将所给的解密后的串分割
+     *
      * @param encodedBin 如 富强民主文明和谐自由平等公正法治
-     * @return  [富强,民主,文明,和谐,自由,平等,公正,法治]
+     * @return [富强, 民主, 文明, 和谐, 自由, 平等, 公正, 法治]
      */
     public List<String> splitEncodedBin(String encodedBin) {
         return stringSpilt(encodedBin, len);
